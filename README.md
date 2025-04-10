@@ -61,7 +61,7 @@ Review and improve the codebase focusing on:
 - Quality of improvements made
 - Explanation of further improvements needed
 
-## Project Structure
+## Project Summary
 
 ```
 AuthExercise/
@@ -106,6 +106,10 @@ AuthExercise/
 - bio: String
 - department: String
 
+### User
+- email: String
+- password: String
+
 ## Services
 
 ### EmployeeService
@@ -113,11 +117,5 @@ AuthExercise/
 
 ### AuthService
 - Handles user authentication
-
-## Next Steps
-1. Review the code
-2. Plan your improvements
-3. Implement highest priority changes
-4. Document additional improvements you'd make with more time
 
 Remember: The goal is to demonstrate your understanding of iOS development best practices and your ability to identify and improve code quality.
