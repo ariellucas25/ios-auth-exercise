@@ -1,30 +1,40 @@
+// Issues: Everything inside the view
+// Using local @State insetead of biding
+// Logic comparing the passwords and calling the register service here
+
+// Improvements: USing RegisterViewModel to manage the variables
+// The view only show the fields and call the function register() of the ViewModel
+// Using task() to async/await
+
+
 import SwiftUI
 
 struct RegisterView: View {
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var confirmPassword: String = ""
+    @StateObject private var viewModel: RegisterViewModel
+    
+    @MainActor
+    init(viewModel: @MainActor @autoclosure @escaping () -> RegisterViewModel = RegisterViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel())
+    }
     
     var body: some View {
         VStack {
             Text("Register")
                 .font(.largeTitle)
             
-            TextField("Email", text: $email)
+            TextField("Email", text: $viewModel.email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .autocapitalization(.none)
             
-            SecureField("Password", text: $password)
+            SecureField("Password", text: $viewModel.password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
-            SecureField("Confirm Password", text: $confirmPassword)
+            SecureField("Confirm Password", text: $viewModel.confirmPassword)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
             Button("Register") {
-                if password == confirmPassword {
-                    AuthService.shared.register(email: email, password: password) { success in
-                        print(success ? "Registration success" : "Registration failed")
-                    }
+                Task {
+                    await viewModel.register()
                 }
             }
             .padding()
@@ -32,3 +42,4 @@ struct RegisterView: View {
         .padding()
     }
 }
+

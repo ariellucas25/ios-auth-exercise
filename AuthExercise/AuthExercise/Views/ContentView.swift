@@ -1,66 +1,64 @@
+// Plan: Remove the local @state's to use the @Published vars
+// Remove Logic (handleLogin) from the View
+// Change the navigation logic responsability to consider the SessionStore instead of controls it locally
+
 import SwiftUI
 
+@MainActor
 struct ContentView: View {
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var isLoading: Bool = false
-    @State var errorMessage: String = ""
-    @State var isLoggedIn: Bool = false
+    @ObservedObject private var sessionStore: SessionStore
+    @StateObject private var viewModel: LoginViewModel
+    
+    init(sessionStore: SessionStore) {
+        self.sessionStore = sessionStore
+        _viewModel = StateObject(wrappedValue: LoginViewModel(sessionStore: sessionStore))
+    }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Text("Login")
                     .font(.largeTitle)
                 
-                if !errorMessage.isEmpty {
-                    Text(errorMessage)
+                if !viewModel.errorMessage.isEmpty {
+                    Text(viewModel.errorMessage)
                         .foregroundColor(.red)
                 }
                 
-                TextField("Email", text: $email)
+                TextField("Email", text: $viewModel.email)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .autocapitalization(.none)
                 
-                SecureField("Password", text: $password)
+                SecureField("Password", text: $viewModel.password)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 
-                Button(action: handleLogin) {
-                    if isLoading {
+                Button(action: login) {
+                    if viewModel.isLoading {
                         ProgressView()
                     } else {
                         Text("Login")
                     }
                 }
-                .disabled(isLoading)
+                .disabled(viewModel.isLoading)
                 
                 Button("Register") {
                     // TODO: Add registration
                 }
                 .padding()
-                
-                NavigationLink(
-                    destination: DashboardView(),
-                    isActive: $isLoggedIn,
-                    label: { EmptyView() }
-                )
+            }
+            .navigationDestination(isPresented: Binding(
+                get: { sessionStore.isAuthenticated },
+                set: { sessionStore.isAuthenticated = $0 }
+            )) {
+                DashboardView()
             }
             .padding()
         }
     }
     
-    func handleLogin() {
-        isLoading = true
-        errorMessage = ""
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            if self.email == "test@example.com" && self.password == "password123" {
-                print("Login success!")
-                self.isLoggedIn = true
-            } else {
-                self.errorMessage = "Invalid credentials"
-            }
-            self.isLoading = false
+    private func login() {
+        Task {
+            await viewModel.login()
         }
     }
 }

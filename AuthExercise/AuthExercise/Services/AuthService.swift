@@ -1,20 +1,26 @@
 import Foundation
 
-class AuthService {
-    static let shared = AuthService()
+// I've changed this service to define protocol and enable dependency injection
+
+protocol AuthServiceProtocol: Sendable {
+    func login(email: String, password: String) async -> Bool
+    func register(email: String, password: String) async -> Bool
+}
+
+actor AuthService: AuthServiceProtocol {
+    static let shared: AuthService = AuthService()
     
-    var users: [String: String] = [:]
+    // Removed the reponsability of saving data of the View
+    private var users: [String: String] = [
+        "test@example.com": "password123"
+    ]
     
-    func login(email: String, password: String, completion: @escaping (Bool) -> Void) {
-        if let storedPassword = users[email], storedPassword == password {
-            completion(true)
-        } else {
-            completion(false)
-        }
+    func login(email: String, password: String) async -> Bool {
+        users[email] == password
     }
     
-    func register(email: String, password: String, completion: @escaping (Bool) -> Void) {
+    func register(email: String, password: String) async -> Bool {
         users[email] = password
-        completion(true)
+        return true
     }
 }

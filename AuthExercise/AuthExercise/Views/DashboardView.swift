@@ -1,8 +1,19 @@
+// issues:
+// Everything is inside the view
+// Controlling state locally (only acessible by the View with @State) and calling the FetchEmployees() in the onAppear(), instead of using dependency injection.
+// Plan: Use binding to the DashboardViewModel
+// Remove Logic that should't be here
+
 import SwiftUI
 
+@MainActor
 struct DashboardView: View {
-    @State private var employees: [Employee] = []
-    @State private var isLoading: Bool = true
+    @StateObject private var viewModel: DashboardViewModel
+    
+    @MainActor
+    init(viewModel: DashboardViewModel? = nil) {
+        _viewModel = StateObject(wrappedValue: viewModel ?? DashboardViewModel())
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -38,17 +49,17 @@ struct DashboardView: View {
                     
                     Spacer()
                     
-                    if isLoading {
+                    if viewModel.isLoading {
                         ProgressView()
                     }
                 }
                 
-                if employees.isEmpty && !isLoading {
+                if viewModel.employees.isEmpty && !viewModel.isLoading {
                     Text("No employees found")
                         .foregroundColor(.gray)
                         .padding()
                 } else {
-                    List(employees) { employee in
+                    List(viewModel.employees) { employee in
                         NavigationLink(destination: EmployeeDetailView(employee: employee)) {
                             EmployeeRow(employee: employee)
                         }
@@ -65,16 +76,8 @@ struct DashboardView: View {
         }
         .padding()
         .navigationBarTitle("Dashboard", displayMode: .inline)
-        .onAppear {
-            fetchEmployees()
-        }
-    }
-    
-    private func fetchEmployees() {
-        isLoading = true
-        EmployeeService.fetchEmployees { fetchedEmployees in
-            self.employees = fetchedEmployees
-            self.isLoading = false
+        .task {
+            await viewModel.loadEmployees()
         }
     }
     
@@ -138,4 +141,4 @@ struct EmployeeRow: View {
     NavigationView {
         DashboardView()
     }
-} 
+}
