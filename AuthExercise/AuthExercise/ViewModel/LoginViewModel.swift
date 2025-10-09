@@ -43,4 +43,20 @@ final class LoginViewModel: ObservableObject {
         // setting user information 
         sessionStore.setAuthenticated(email: email)
     }
+    
+    func register() async {
+        guard !isLoading else { return }
+        
+        isLoading = true
+        errorMessage = ""
+        
+        defer { isLoading = false }
+        
+        guard await authService.register(email: email, password: password) else {
+            errorMessage = "Could not register user"
+            return
+        }
+        
+        sessionStore.setAuthenticated(email: email)
+    }
 }

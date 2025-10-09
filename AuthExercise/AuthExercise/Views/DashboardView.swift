@@ -3,26 +3,30 @@
 // Controlling state locally (only acessible by the View with @State) and calling the FetchEmployees() in the onAppear(), instead of using dependency injection.
 // Plan: Use binding to the DashboardViewModel
 // Remove Logic that should't be here
+// Removed the title "Dashboard" and inserted a new Text to show the logged user email
 
 import SwiftUI
 
 @MainActor
 struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
+    @ObservedObject private var sessionStore: SessionStore
     
     @MainActor
-    init(viewModel: DashboardViewModel? = nil) {
+    init(sessionStore: SessionStore, viewModel: DashboardViewModel? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel ?? DashboardViewModel())
+        _sessionStore = ObservedObject(wrappedValue: sessionStore)
     }
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Dashboard")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
             Text("Welcome! You are now logged in.")
                 .font(.headline)
+            
+            Text(sessionStore.currentUserEmail ?? "No user email available")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(.secondary)
             
             // Quick Actions section
             VStack(alignment: .leading, spacing: 15) {
@@ -139,6 +143,6 @@ struct EmployeeRow: View {
 
 #Preview {
     NavigationView {
-        DashboardView()
+        DashboardView(sessionStore: SessionStore())
     }
 }

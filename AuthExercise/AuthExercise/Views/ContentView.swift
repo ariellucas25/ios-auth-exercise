@@ -42,7 +42,9 @@ struct ContentView: View {
                 .disabled(viewModel.isLoading)
                 
                 Button("Register") {
-                    // TODO: Add registration
+                    Task {
+                        await viewModel.register()
+                    }
                 }
                 .padding()
             }
@@ -50,7 +52,8 @@ struct ContentView: View {
                 get: { sessionStore.isAuthenticated },
                 set: { sessionStore.isAuthenticated = $0 }
             )) {
-                DashboardView()
+                // Injecting sessionStore to have the logged email on the View
+                DashboardView(sessionStore: sessionStore)
             }
             .padding()
         }
