@@ -12,9 +12,8 @@ struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
     @ObservedObject private var sessionStore: SessionStore
     
-    @MainActor
-    init(sessionStore: SessionStore, viewModel: DashboardViewModel? = nil) {
-        _viewModel = StateObject(wrappedValue: viewModel ?? DashboardViewModel())
+    init(sessionStore: SessionStore, viewModel: DashboardViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
         _sessionStore = ObservedObject(wrappedValue: sessionStore)
     }
     
@@ -143,6 +142,9 @@ struct EmployeeRow: View {
 
 #Preview {
     NavigationView {
-        DashboardView(sessionStore: SessionStore())
+        DashboardView(
+            sessionStore: SessionStore(),
+            viewModel: DashboardViewModel(employeeService: EmployeeService())
+        )
     }
 }

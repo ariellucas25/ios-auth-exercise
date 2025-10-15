@@ -87,7 +87,7 @@ struct EmployeeDetailView: View {
     NavigationView {
         EmployeeDetailView(employee: Employee(
             id: "E001",
-            name: "John Smith",
+            name: "Ariel Luduvig",
             profilePicture: "person.circle.fill",
             yearsOfExperience: 5,
             bio: "John is a senior developer with expertise in iOS and Swift. He enjoys building beautiful user interfaces and optimizing performance.",

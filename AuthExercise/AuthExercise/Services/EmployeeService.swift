@@ -7,8 +7,6 @@ protocol EmployeeServiceProtocol: Sendable {
 }
 
 actor EmployeeService: EmployeeServiceProtocol {
-    static let shared: EmployeeService = EmployeeService()
-    
     func fetchEmployees() async -> [Employee] {
         // Simulate latency to mirror a network call
         try? await Task.sleep(nanoseconds: 1_000_000_000)

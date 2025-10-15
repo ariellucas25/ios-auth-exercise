@@ -6,14 +6,12 @@ protocol AuthServiceProtocol: Sendable {
 }
 
 actor AuthService: AuthServiceProtocol {
-    static let shared: AuthService = AuthService()
-
-    private let credentialStore: CredentialStore
-
-    init(credentialStore: CredentialStore = .shared) {
+    private let credentialStore: any CredentialStoreProtocol
+    
+    init(credentialStore: any CredentialStoreProtocol) {
         self.credentialStore = credentialStore
     }
-
+    
     func login(email: String, password: String) async -> Bool {
         do {
             guard let storedPassword = try credentialStore.password(for: email) else {

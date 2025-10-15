@@ -17,8 +17,7 @@ final class DashboardViewModel: ObservableObject {
     
     private let employeeService: any EmployeeServiceProtocol
     
-    // initiating our employeeService 
-    init(employeeService: any EmployeeServiceProtocol = EmployeeService.shared) {
+    init(employeeService: any EmployeeServiceProtocol) {
         self.employeeService = employeeService
     }
     

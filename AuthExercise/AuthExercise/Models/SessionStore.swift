@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+// guarantees all code in the annotated context runs on the main thread
 @MainActor
 final class SessionStore: ObservableObject {
     @Published var isAuthenticated: Bool = false

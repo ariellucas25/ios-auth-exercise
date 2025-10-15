@@ -20,7 +20,7 @@ final class LoginViewModel: ObservableObject {
     private let sessionStore: SessionStore
     
     init(
-        authService: any AuthServiceProtocol = AuthService.shared,
+        authService: any AuthServiceProtocol,
         sessionStore: SessionStore
     ) {
         self.authService = authService

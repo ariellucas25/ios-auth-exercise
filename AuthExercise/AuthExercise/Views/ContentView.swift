@@ -6,12 +6,27 @@ import SwiftUI
 
 @MainActor
 struct ContentView: View {
+    // Using ObservedObject because this object is created outside the view and its lifecycle is not controlled by the view.
     @ObservedObject private var sessionStore: SessionStore
+    private let authService: any AuthServiceProtocol
+    private let employeeService: any EmployeeServiceProtocol
+    // @StateObject indicates that this object is created here and will exists only while this view exists
     @StateObject private var viewModel: LoginViewModel
     
-    init(sessionStore: SessionStore) {
+    init(
+        sessionStore: SessionStore,
+        authService: any AuthServiceProtocol,
+        employeeService: any EmployeeServiceProtocol
+    ) {
         self.sessionStore = sessionStore
-        _viewModel = StateObject(wrappedValue: LoginViewModel(sessionStore: sessionStore))
+        self.authService = authService
+        self.employeeService = employeeService
+        _viewModel = StateObject(
+            wrappedValue: LoginViewModel(
+                authService: authService,
+                sessionStore: sessionStore
+            )
+        )
     }
     
     var body: some View {
@@ -50,16 +65,20 @@ struct ContentView: View {
             }
             .navigationDestination(isPresented: Binding(
                 get: { sessionStore.isAuthenticated },
-                set: { sessionStore.isAuthenticated = $0 }
+                set: { sessionStore.isAuthenticated = $0 } // same as writing value in sessionStore.isAuthenticated = value
             )) {
                 // Injecting sessionStore to have the logged email on the View
-                DashboardView(sessionStore: sessionStore)
+                DashboardView(
+                    sessionStore: sessionStore,
+                    viewModel: DashboardViewModel(employeeService: employeeService)
+                )
             }
             .padding()
         }
     }
     
     private func login() {
+        // wrapping the login() func in a Task {}, that creates a new asyncronous task. It's needed because buttons actions are syncronous by default
         Task {
             await viewModel.login()
         }
